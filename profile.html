@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartStretch - Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
+
+    <style>
+        .text-neon {
+            color: #d4ff00;
+        }
+
+        .bg-neon {
+            background-color: #d4ff00;
+        }
+
+        .accent-neon {
+            accent-color: #d4ff00;
+        }
+
+        .material-symbols-filled {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings:
+                    'FILL' 1,
+                    'wght' 400,
+                    'GRAD' 0,
+                    'opsz' 48;
+        }
+    </style>
+</head>
+
+<body class="bg-[#1b1b1b] text-white min-h-screen pb-20 px-4 pt-6">
+
+<!-- ✅ SAME HEADER AS HOME -->
+<header class="mb-6">
+    <h1 class="text-2xl font-bold text-neon" style="font-family: 'Anton', sans-serif;">SmartStretch</h1>
+</header>
+
+<!-- ✅ PROFILE CONTENT ONLY -->
+<div class="bg-[#292929] rounded-xl p-4 border border-[#3a3a3a] space-y-4">
+    <div>
+        <h2 class="text-sm text-gray-400">Username</h2>
+        <p class="text-lg font-semibold">runner_01</p>
+    </div>
+
+    <div>
+        <h2 class="text-sm text-gray-400">Member since</h2>
+        <p class="text-lg font-semibold">12 days ago</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 text-center text-sm text-gray-300">
+        <div class="bg-[#1f1f1f] p-3 rounded-xl border border-[#444]">
+            <div class="text-neon text-lg font-bold">12</div>
+            <div>Stretches</div>
+        </div>
+        <div class="bg-[#1f1f1f] p-3 rounded-xl border border-[#444]">
+            <div class="text-neon text-lg font-bold">8</div>
+            <div>Warmups</div>
+        </div>
+    </div>
+
+    <div class="pt-4">
+        <button class="w-full text-sm font-semibold py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-black transition-all">
+            Reset Everything
+        </button>
+    </div>
+</div>
+
+<!-- ✅ SAME NAV AS HOME -->
+<nav class="fixed bottom-0 left-0 w-full bg-[#121212] border-t border-[#2a2a2a] flex justify-around py-3 text-sm text-gray-400">
+    <a href="/home" class="flex flex-col items-center hover:text-neon">
+        <span class="material-symbols-filled text-3xl">home</span>
+        Home
+    </a>
+    <a href="/progress" class="flex flex-col items-center hover:text-neon">
+        <span class="material-symbols-filled text-3xl">bar_chart</span>
+        Progress
+    </a>
+    <a href="/profile" class="flex flex-col items-center text-neon">
+        <span class="material-symbols-filled text-3xl">person</span>
+        Profile
+    </a>
+</nav>
+
+</body>
+</html>

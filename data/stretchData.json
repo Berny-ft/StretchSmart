@@ -1,0 +1,112 @@
+[
+    {
+        "name": "Hamstring Reach",
+        "image": "/public/images/HamstringReach.png",
+        "start": 0,
+        "current": 20,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 3,
+        "what": "Loosens tight hamstrings and the lower back, reducing stiffness and helping restore leg mobility after running.",
+        "feel": "A long, steady pull along the back of your thighs and behind your knees."
+    },
+    {
+        "name": "Standing Quad Stretch",
+        "image": "/public/images/StandingQuadStretch.png",
+        "start": 0,
+        "current": 22,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 4,
+        "what": "Releases tension in the front thighs and hip flexors, both heavily engaged during running.",
+        "feel": "You\u2019ll feel it across the front of your thigh and near your hip."
+    },
+    {
+        "name": "Calf Stretch",
+        "image": "/public/images/CalfStretch.png",
+        "start": 0,
+        "current": 24,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 5,
+        "what": "Relieves tightness in the calves and improves ankle flexibility, helping prevent soreness and Achilles issues.",
+        "feel": "A focused stretch in the lower back of your leg, from calf to heel."
+    },
+    {
+        "name": "Hip Flexor Lunge",
+        "image": "/public/images/HipFlexorLunge.png",
+        "start": 0,
+        "current": 26,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 6,
+        "what": "Opens the front of the hips, which get tight from running and sitting afterward. Crucial for stride recovery.",
+        "feel": "Expect a solid stretch through the front of your hip and upper thigh."
+    },
+    {
+        "name": "Figure Four Stretch",
+        "image": "/public/images/FigureFourStretch.png",
+        "start": 0,
+        "current": 28,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 7,
+        "what": "Targets the glutes and piriformis, easing tension in the outer hips and helping with lower back relief.",
+        "feel": "A deep release in the outer glute and hip area of your bent leg."
+    },
+    {
+        "name": "Standing IT Band Stretch",
+        "image": "/public/images/StandingITBandStretch.png",
+        "start": 0,
+        "current": 30,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 8,
+        "what": "Relieves pressure along the outer thigh and supports knee alignment \u2014 especially helpful for avoiding runner\u2019s knee.",
+        "feel": "A steady pull down the outside of your thigh."
+    },
+    {
+        "name": "Butterfly Stretch",
+        "image": "/public/images/ButterflyStretch.png",
+        "start": 0,
+        "current": 32,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 9,
+        "what": "Opens the inner thighs and groin muscles, improving hip flexibility and overall lower-body recovery.",
+        "feel": "A wide stretch through your inner thighs near the groin."
+    },
+    {
+        "name": "Seated Forward Fold",
+        "image": "/public/images/SeatedForwardFold.png",
+        "start": 0,
+        "current": 34,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 10,
+        "what": "Calms the spine and helps lengthen the whole back side of the body. Great for breath and nervous system recovery.",
+        "feel": "A gentle stretch from your lower back through the backs of your legs."
+    },
+    {
+        "name": "Child\u2019s Pose",
+        "image": "/public/images/Child’sPose.png",
+        "start": 0,
+        "current": 36,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 11,
+        "what": "Relaxes the lower back and hips while promoting deep, steady breathing. Perfect to wind down post-run.",
+        "feel": "You\u2019ll feel gentle pressure in your hips, back, and maybe shoulders."
+    },
+    {
+        "name": "Side Bend Stretch",
+        "image": "/public/images/SideBendStretch.png",
+        "start": 0,
+        "current": 38,
+        "maxRange": 60,
+        "daysAgo": 12,
+        "completed": 12,
+        "what": "Restores side-body flexibility, helps open up the ribs, and encourages relaxed breathing.",
+        "feel": "A lengthening pull down one side from ribs to waist."
+    }
+]
