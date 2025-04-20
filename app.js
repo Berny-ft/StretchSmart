@@ -255,7 +255,7 @@ app.use((req, res) => {
 });
 
 
-app.listen(3000,'172.16.4.156',()=> {
-    console.log("The server is running at http://172.16.4.156:3000 http://localhost:3000");
+app.listen(3000,()=> {
+    console.log("The server is running at  http://localhost:3000");
 })
 
