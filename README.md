@@ -51,7 +51,7 @@ Shows session stats, member info, and a reset button with confirmation.
 ## Installation
 
 ```bash
-git clone https://github.com/berny-ft/StretchSmart.git
+git clone https://github.com/Berny-ft/StretchSmart.git
 cd StretchSmart
 npm install
 ```
