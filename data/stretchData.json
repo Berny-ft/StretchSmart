@@ -1,7 +1,7 @@
 [
     {
         "name": "Hamstring Reach",
-        "image": "/public/images/HamstringReach.png",
+        "image": "/images/HamstringReach.png",
         "start": 0,
         "current": 20,
         "maxRange": 60,
@@ -12,7 +12,7 @@
     },
     {
         "name": "Standing Quad Stretch",
-        "image": "/public/images/StandingQuadStretch.png",
+        "image": "/images/StandingQuadStretch.png",
         "start": 0,
         "current": 22,
         "maxRange": 60,
@@ -23,7 +23,7 @@
     },
     {
         "name": "Calf Stretch",
-        "image": "/public/images/CalfStretch.png",
+        "image": "/images/CalfStretch.png",
         "start": 0,
         "current": 24,
         "maxRange": 60,
@@ -34,7 +34,7 @@
     },
     {
         "name": "Hip Flexor Lunge",
-        "image": "/public/images/HipFlexorLunge.png",
+        "image": "/images/HipFlexorLunge.png",
         "start": 0,
         "current": 26,
         "maxRange": 60,
@@ -45,7 +45,7 @@
     },
     {
         "name": "Figure Four Stretch",
-        "image": "/public/images/FigureFourStretch.png",
+        "image": "/images/FigureFourStretch.png",
         "start": 0,
         "current": 28,
         "maxRange": 60,
@@ -56,7 +56,7 @@
     },
     {
         "name": "Standing IT Band Stretch",
-        "image": "/public/images/StandingITBandStretch.png",
+        "image": "/images/StandingITBandStretch.png",
         "start": 0,
         "current": 30,
         "maxRange": 60,
@@ -67,7 +67,7 @@
     },
     {
         "name": "Butterfly Stretch",
-        "image": "/public/images/ButterflyStretch.png",
+        "image": "/images/ButterflyStretch.png",
         "start": 0,
         "current": 32,
         "maxRange": 60,
@@ -78,7 +78,7 @@
     },
     {
         "name": "Seated Forward Fold",
-        "image": "/public/images/SeatedForwardFold.png",
+        "image": "/images/SeatedForwardFold.png",
         "start": 0,
         "current": 34,
         "maxRange": 60,
@@ -89,7 +89,7 @@
     },
     {
         "name": "Child\u2019s Pose",
-        "image": "/public/images/Child’sPose.png",
+        "image": "/images/Child’sPose.png",
         "start": 0,
         "current": 36,
         "maxRange": 60,
@@ -100,7 +100,7 @@
     },
     {
         "name": "Side Bend Stretch",
-        "image": "/public/images/SideBendStretch.png",
+        "image": "/images/SideBendStretch.png",
         "start": 0,
         "current": 38,
         "maxRange": 60,

@@ -3,7 +3,7 @@
     <!-- Emphasized stretch step -->
     <div class="mb-1">
         <!-- ID added -->
-        <p class="text-neon text-lg font-bold" id="stretch-counter">Stretch 1 of X</p>
+        <p class="text-neon text-lg font-bold" id="stretch-counter"> 1 of X</p>
     </div>
 
     <!-- Stretch Name -->
@@ -13,7 +13,7 @@
     <!-- Image -->
     <!-- ID added to container, and added img/span elements with IDs -->
     <div id="stretch-image-container" class="w-full h-48 bg-[#292929] rounded-xl flex items-center justify-center mb-6 overflow-hidden">
-        <img id="stretch-image" src="" alt="" class="w-full h-full object-contain" style="display: none;"> <!-- Hidden initially -->
+        <img id="stretch-image" src="" alt="" class="w-full h-full object-cover" style="display: none;"> <!-- Hidden initially -->
         <span id="stretch-image-placeholder" class="text-gray-500">[pose image here]</span> <!-- Placeholder -->
     </div>
 
@@ -47,6 +47,7 @@
 
 
 <script>
+    const logType = `<%= logType %>`;
     // by this point stretch data is already loaded since it's at the top of the layout
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -79,7 +80,7 @@
             // if nothing was sent
             if (totalStretches === 0) {
                 if(nameElement) nameElement.textContent = 'No stretches available.';
-                if(counterElement) counterElement.textContent = 'Stretch 0 of 0';
+                if(counterElement) counterElement.textContent = '0 of 0';
                 if(prevButton) prevButton.disabled = true;
                 if(nextButton) nextButton.disabled = true;
                 return;
@@ -91,14 +92,14 @@
 
             const currentStretch = stretchData[index];
 
-            // content update
-            if(counterElement) counterElement.textContent = `Stretch ${index + 1} of ${totalStretches}`;
+            // updating the content
+            if(counterElement) counterElement.textContent = `${index + 1} of ${totalStretches}`;
             if(nameElement) nameElement.textContent = currentStretch.name || 'Unnamed Stretch';
-            if(timeElement) timeElement.textContent = currentStretch.maxRange || 30; // Use maxRange or default
+            if(timeElement) timeElement.textContent = currentStretch.duration || 30; // Use maxRange or default
             if(whatElement) whatElement.textContent = currentStretch.what || 'No description provided.';
             if(feelElement) feelElement.textContent = currentStretch.feel || 'No description provided.';
 
-            // Update Image
+            // updating the image
             if (currentStretch.image && imageElement && imagePlaceholder) {
                 imageElement.src = currentStretch.image;
                 imageElement.alt = currentStretch.name || 'Stretch pose';
@@ -110,7 +111,7 @@
                 imagePlaceholder.textContent = '[Image not available]';
             }
 
-            // Update Button States
+            // changing the button states
             if(prevButton) prevButton.disabled = (index === 0);
             if(nextButton) {
                 nextButton.disabled = false; // Ensure enabled unless explicitly Done
@@ -136,11 +137,23 @@
             nextButton.addEventListener('click', () => {
                 // Check if it's the last stretch
                 if (nextButton.textContent === 'Done') {
-                    // Handle completion (e.g., show a message, redirect)
-                    alert('Stretching session complete!');
-                    // Example redirect: window.location.href = '/progress';
-                    window.location.href = '/home'; // Redirect home as an example
+
+                    if (logType === 'stretch') {
+                        ///
+                        fetch('/log/stretch', {
+                            method: 'POST'
+                        }).finally(() => {
+                            window.location.href = '/home';
+                        });
+                    } else {
+                        fetch('/log/warmup', {
+                            method: 'POST'
+                        }).finally(() => {
+                            window.location.href = '/home';
+                        });
+                    }
                 }
+
                 // Check if there's a next stretch
                 else if (currentIndex < totalStretches - 1) {
                     currentIndex++;

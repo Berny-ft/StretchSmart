@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SmartStretch - <%- pageName %></title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- here we are importing tailwind css CDN instead of fully downloading ; full install didn't work-->
@@ -46,7 +47,7 @@
 
 <!--The header goes here using custom css using the classes-->
 <header class="mb-6">
-    <h1 class="text-2xl font-bold text-neon" style="font-family: 'Anton', sans-serif;">SmartStretch</h1>
+    <h1 class="text-2xl font-bold text-neon" style="font-family: 'Anton', sans-serif;"><a href="/home">SmartStretch</a></h1>
 </header>
 
 <%- content %>
@@ -56,11 +57,6 @@
     <a href="/home" class="flex flex-col items-center <%= pageName === 'home'? "text-neon" : "text-white"%>">
         <span class="material-symbols-filled text-3xl">home</span>
         Home
-    </a>
-
-    <a href="/progress" class="flex flex-col items-center <%= pageName === 'progress'? "text-neon" : "text-white"%>">
-        <span class="material-symbols-filled text-3xl">bar_chart</span>
-        Progress
     </a>
     <a href="/profile" class="flex flex-col items-center <%= pageName === 'profile'? "text-neon" : "text-white"%>">
         <span class="material-symbols-filled text-3xl">person</span>
