@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname,'public')));
 app.use(express.urlencoded({extended: false}));// that means that the content isn't shown
 
 //Set up database
-const mongoURI = '' //TODO add MongoDB URI
+const mongoURI = 'mongodb+srv://Berny:<h2bNFCbACczjE1OZ>@cluster0.1hu3ha8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
