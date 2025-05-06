@@ -1,0 +1,103 @@
+<main class="flex-grow">
+    <form action="/generate" method="post" onsubmit="return validateForm()">
+        <!-- Hidden field to store type -->
+        <input type="hidden" name="type" id="selectedType" value="Stretch">
+
+        <!-- Toggle buttons -->
+        <div class="flex justify-center gap-2 mb-6">
+            <button id="Stretch" type="button" onclick="selectType('Stretch')"
+                    class="flex-1 bg-neon text-black font-semibold py-2 rounded-full">Stretch</button>
+            <button id="Warmup" type="button" onclick="selectType('Warmup')"
+                    class="flex-1 bg-[#333] text-white font-semibold py-2 rounded-full">Warmup</button>
+        </div>
+
+        <!-- Sliders -->
+        <div class="space-y-6">
+            <div>
+                <label for="time" class="block mb-1 text-gray-300">Time Available</label>
+                <input id="time" name="time" type="range" min="0" max="100" value="10" class="w-full accent-neon">
+            </div>
+            <div>
+                <label for="effort" class="block mb-1 text-gray-300">Effort Level</label>
+                <input id="effort" name="effort" type="range" min="0" max="100" value="0" class="w-full accent-neon">
+            </div>
+            <div>
+                <label for="pain" class="block mb-1 text-gray-300">Pain Level</label>
+                <input id="pain" name="pain" type="range" min="0" max="100" value="0" class="w-full accent-neon">
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="mt-6">
+            <label for="details" class="block text-gray-300 mb-1">Details</label>
+            <textarea id="details" name="details"
+                      placeholder="Briefly describe how you're feeling or what you're preparing for."
+                      class="w-full rounded-xl bg-[#292929] text-white p-3 resize-none h-[6.5rem] max-h-[6.5rem] overflow-auto placeholder-gray-400"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mt-8">
+            <button type="submit" class="w-full bg-neon text-black py-3 text-lg font-semibold rounded-full">
+                Generate Plan
+            </button>
+
+            <!--  Counters  -->
+            <div class="mt-4 grid grid-cols-2 gap-4 text-center text-sm text-gray-300">
+                <div class="bg-[#292929] p-3 rounded-xl border border-[#444]">
+                    <div class="text-neon text-lg font-bold"><%= numberOfStretches %></div>
+                    <div>Stretches</div>
+                </div>
+                <div class="bg-[#292929] p-3 rounded-xl border border-[#444]">
+                    <div class="text-neon text-lg font-bold"><%= numberOfWarmups %></div>
+                    <div>Warmups</div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div id="timePopup" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+        <div class="bg-[#1e1e1e] p-6 rounded-xl shadow-xl text-white w-[90%] max-w-md text-center">
+            <p class="text-lg font-semibold mb-4">Minimum allowed time is 1 minute.</p>
+            <button onclick="hideTimePopup()" class="px-4 py-2 rounded-full bg-neon text-black hover:bg-[#d4ff00]/80 transition">
+                Got it
+            </button>
+        </div>
+    </div>
+</main>
+
+<!-- JS to set the type -->
+<script>
+    function selectType(type) {
+        const stretchButton = document.getElementById('Stretch');
+        const warmupButton = document.getElementById('Warmup');
+
+        if(type === 'Stretch') {
+            stretchButton.className = "flex-1 bg-neon text-black font-semibold py-2 rounded-full"
+            warmupButton.className = "flex-1 bg-[#333] text-white font-semibold py-2 rounded-full";
+        }else {
+            warmupButton.className = "flex-1 bg-neon text-black font-semibold py-2 rounded-full"
+            stretchButton.className = "flex-1 bg-[#333] text-white font-semibold py-2 rounded-full";
+        }
+
+        document.getElementById('selectedType').value = type;
+    }
+
+    function validateForm() {
+        const timeValue = parseInt(document.getElementById('time').value);
+        if (timeValue < 10) {
+            showTimePopup();
+            return false;
+        }
+        return true;
+    }
+
+    function showTimePopup() {
+        document.getElementById('timePopup').classList.remove('hidden');
+    }
+
+    function hideTimePopup() {
+        document.getElementById('timePopup').classList.add('hidden');
+    }
+
+
+
+</script>

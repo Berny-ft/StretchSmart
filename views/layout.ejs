@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartStretch - <%- pageName %></title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- here we are importing tailwind css CDN instead of fully downloading ; full install didn't work-->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+
+
+    <!-- google icons font -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
+
+    <style>
+        .text-neon {
+            color: #d4ff00;
+        }
+
+        .bg-neon {
+            background-color: #d4ff00;
+        }
+
+        .accent-neon {
+            accent-color: #d4ff00;
+        }
+
+        .material-symbols-filled {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings:
+                    'FILL' 1,
+                    'wght' 400,
+                    'GRAD' 0,
+                    'opsz' 48;
+        }
+    </style>
+
+    <script>
+
+        const stretchData = <%- JSON.stringify(stretches) %>;
+
+    </script>
+</head>
+<body class="bg-[#1b1b1b] text-white min-h-screen pb-20 px-4 pt-6">
+
+<!--The header goes here using custom css using the classes-->
+<header class="mb-6">
+    <h1 class="text-2xl font-bold text-neon" style="font-family: 'Anton', sans-serif;"><a href="/home">SmartStretch</a></h1>
+</header>
+
+<%- content %>
+
+<!-- the bottom navigation is fixed-->
+<nav class="fixed bottom-0 left-0 w-full bg-[#121212] border-t border-[#2a2a2a] flex justify-around py-3 text-sm text-gray-400">
+    <a href="/home" class="flex flex-col items-center <%= pageName === 'home'? "text-neon" : "text-white"%>">
+        <span class="material-symbols-filled text-3xl">home</span>
+        Home
+    </a>
+    <a href="/profile" class="flex flex-col items-center <%= pageName === 'profile'? "text-neon" : "text-white"%>">
+        <span class="material-symbols-filled text-3xl">person</span>
+        Profile
+    </a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
+</body>
+</html>

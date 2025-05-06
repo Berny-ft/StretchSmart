@@ -1,0 +1,169 @@
+<!-- views/stretch.ejs -->
+<main class="flex-grow">
+    <!-- Emphasized stretch step -->
+    <div class="mb-1">
+        <!-- ID added -->
+        <p class="text-neon text-lg font-bold" id="stretch-counter"> 1 of X</p>
+    </div>
+
+    <!-- Stretch Name -->
+    <!-- ID added -->
+    <h2 class="text-2xl font-bold mb-4" id="stretch-name">Loading...</h2>
+
+    <!-- Image -->
+    <!-- ID added to container, and added img/span elements with IDs -->
+    <div id="stretch-image-container" class="w-full h-48 bg-[#292929] rounded-xl flex items-center justify-center mb-6 overflow-hidden">
+        <img id="stretch-image" src="" alt="" class="w-full h-full object-cover" style="display: none;"> <!-- Hidden initially -->
+        <span id="stretch-image-placeholder" class="text-gray-500">[pose image here]</span> <!-- Placeholder -->
+    </div>
+
+    <!-- Emphasized Time -->
+    <div class="mb-4">
+        <!-- ID added to the span containing the number -->
+        <p class=" text-base font-semibold text-neon text-lg"><span id="stretch-time">--</span> seconds</p>
+    </div>
+
+    <!-- What it does -->
+    <div class="mb-4">
+        <h3 class="text-base font-semibold text-white mb-1">What it does</h3>
+        <!-- ID added -->
+        <p class="text-gray-400 text-sm" id="stretch-what">...</p>
+    </div>
+
+    <!-- How it should feel -->
+    <div class="mb-8">
+        <h3 class="text-base font-semibold text-white mb-1">How it should feel</h3>
+        <!-- ID added -->
+        <p class="text-gray-400 text-sm" id="stretch-feel">...</p>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex gap-4">
+        <!-- IDs added -->
+        <button id="prev-button" class="flex-1 bg-[#333] text-white py-3 rounded-full font-semibold hover:bg-[#444] disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+        <button id="next-button" class="flex-1 bg-neon text-black py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+    </div>
+</main>
+
+
+<script>
+    const logType = `<%= logType %>`;
+    // by this point stretch data is already loaded since it's at the top of the layout
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // checking if we actually go the required data
+        if (typeof stretchData === 'undefined' || !Array.isArray(stretchData)) {
+            console.error('Stretch data (stretchData array) is not available!');
+            // an error message if the data isn't there
+            const nameElement = document.getElementById('stretch-name');
+            if(nameElement) nameElement.textContent = 'Error loading stretches.';
+            return;
+        }
+
+        // getting the dom elements
+        const counterElement = document.getElementById('stretch-counter');
+        const nameElement = document.getElementById('stretch-name');
+        const imageElement = document.getElementById('stretch-image');
+        const imagePlaceholder = document.getElementById('stretch-image-placeholder');
+        const timeElement = document.getElementById('stretch-time');
+        const whatElement = document.getElementById('stretch-what');
+        const feelElement = document.getElementById('stretch-feel');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+
+
+        let currentIndex = 0;
+        const totalStretches = stretchData.length;
+
+        // updating the ui and displaying
+        function updateDisplay(index) {
+            // if nothing was sent
+            if (totalStretches === 0) {
+                if(nameElement) nameElement.textContent = 'No stretches available.';
+                if(counterElement) counterElement.textContent = '0 of 0';
+                if(prevButton) prevButton.disabled = true;
+                if(nextButton) nextButton.disabled = true;
+                return;
+            }
+            if (index < 0 || index >= totalStretches) {
+                console.warn(`Invalid index requested: ${index}`);
+                return;
+            }
+
+            const currentStretch = stretchData[index];
+
+            // updating the content
+            if(counterElement) counterElement.textContent = `${index + 1} of ${totalStretches}`;
+            if(nameElement) nameElement.textContent = currentStretch.name || 'Unnamed Stretch';
+            if(timeElement) timeElement.textContent = currentStretch.duration || 30; // Use maxRange or default
+            if(whatElement) whatElement.textContent = currentStretch.what || 'No description provided.';
+            if(feelElement) feelElement.textContent = currentStretch.feel || 'No description provided.';
+
+            // updating the image
+            if (currentStretch.image && imageElement && imagePlaceholder) {
+                imageElement.src = currentStretch.image;
+                imageElement.alt = currentStretch.name || 'Stretch pose';
+                imageElement.style.display = 'block'; // Show the image tag
+                imagePlaceholder.style.display = 'none'; // Hide the placeholder text
+            } else if (imageElement && imagePlaceholder) {
+                imageElement.style.display = 'none'; // Hide image tag if no src
+                imagePlaceholder.style.display = 'inline'; // Show placeholder text
+                imagePlaceholder.textContent = '[Image not available]';
+            }
+
+            // changing the button states
+            if(prevButton) prevButton.disabled = (index === 0);
+            if(nextButton) {
+                nextButton.disabled = false; // Ensure enabled unless explicitly Done
+                if (index === totalStretches - 1) {
+                    nextButton.textContent = 'Done';
+                } else {
+                    nextButton.textContent = 'Next';
+                }
+            }
+        }
+
+        // --- Event Listeners for Buttons ---
+        if (prevButton) {
+            prevButton.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateDisplay(currentIndex);
+                }
+            });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', () => {
+                // Check if it's the last stretch
+                if (nextButton.textContent === 'Done') {
+
+                    if (logType === 'stretch') {
+                        ///
+                        fetch('/log/stretch', {
+                            method: 'POST'
+                        }).finally(() => {
+                            window.location.href = '/home';
+                        });
+                    } else {
+                        fetch('/log/warmup', {
+                            method: 'POST'
+                        }).finally(() => {
+                            window.location.href = '/home';
+                        });
+                    }
+                }
+
+                // Check if there's a next stretch
+                else if (currentIndex < totalStretches - 1) {
+                    currentIndex++;
+                    updateDisplay(currentIndex);
+                }
+            });
+        }
+
+        // --- Initial Display ---
+        updateDisplay(currentIndex); // Load the first stretch (index 0) when the page loads
+
+    }); // End DOMContentLoaded listener
+</script>

@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Leg Swings (Forward-Backward)",
+    "image": "/images/LegSwingsFrontBack.png",
+    "start": 0,
+    "current": 20,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Loosens hip flexors and hamstrings for full stride range.",
+    "feel": "Smooth swinging through the hip, from thigh to calf."
+  },
+  {
+    "name": "Leg Swings (Side-to-Side)",
+    "image": "/images/LegSwingsSideSide.png",
+    "start": 0,
+    "current": 20,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Mobilizes hips laterally and activates stabilizers.",
+    "feel": "Controlled sweep across the body activating outer glutes."
+  },
+  {
+    "name": "High Knees",
+    "image": "/images/HighKnees.png",
+    "start": 0,
+    "current": 30,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Drives heart rate and engages hip flexors and core.",
+    "feel": "Uplifting knee drive and rapid rhythm."
+  },
+  {
+    "name": "Butt Kicks",
+    "image": "/images/ButtKicks.png",
+    "start": 0,
+    "current": 30,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Warms up hamstrings and promotes leg recovery mechanics.",
+    "feel": "Snappy flick behind the legs with upright posture."
+  },
+  {
+    "name": "Lunge with Overhead Reach",
+    "image": "/images/LungeWithReach.png",
+    "start": 0,
+    "current": 25,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Opens hip flexors and activates posterior chain.",
+    "feel": "Deep stretch through the hip and side body."
+  },
+  {
+    "name": "Fast Ankling",
+    "image": "/images/FastAnkling.png",
+    "start": 0,
+    "current": 20,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Prepares ankle stiffness and rhythm for ground contact.",
+    "feel": "Quick taps with light rebound in the calves."
+  },
+  {
+    "name": "Glute Activation Walks",
+    "image": "/images/GluteWalks.png",
+    "start": 0,
+    "current": 25,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Engages glutes and lateral stabilizers to control alignment.",
+    "feel": "Tension in the outer hips with controlled steps."
+  },
+  {
+    "name": "A-Skips",
+    "image": "/images/ASkips.png",
+    "start": 0,
+    "current": 30,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Reinforces proper form and midfoot strike mechanics.",
+    "feel": "Rhythmic hopping with knee lift and bounce."
+  },
+  {
+    "name": "Open the Gate / Close the Gate",
+    "image": "/images/OpenCloseGate.png",
+    "start": 0,
+    "current": 20,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Mobilizes the hip capsule in rotation, prepping stride flow.",
+    "feel": "Circular movement deep in the hip sockets."
+  },
+  {
+    "name": "Strides",
+    "image": "/images/Strides.png",
+    "start": 0,
+    "current": 40,
+    "maxRange": 60,
+    "daysAgo": 0,
+    "completed": 0,
+    "what": "Builds neuromuscular sharpness for race pace readiness.",
+    "feel": "Controlled acceleration to 80–90% effort with smooth rhythm."
+  }
+]

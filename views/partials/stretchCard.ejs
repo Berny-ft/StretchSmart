@@ -1,0 +1,79 @@
+<div class="bg-[#292929] rounded-xl p-4 border border-[#3a3a3a] mb-6">
+    <h2 class="text-lg font-bold mb-4 text-neon"><%= stretch.name %></h2>
+
+    <canvas id="chart-<%= index %>" class="w-full h-32 mb-4"></canvas>
+
+    <input type="range" id="slider-<%= index %>" class="w-full accent-neon mb-4"
+           min="0" max="<%= stretch.maxRange %>" value="<%= stretch.current %>">
+
+    <div class="text-sm text-gray-400">
+        <p>Started: <span class="text-white"><%= stretch.daysAgo %> days ago</span></p>
+        <p>Completed: <span class="text-white"><%= stretch.completed %> times</span></p>
+    </div>
+
+    <script>
+        (() => {
+            const gaussian = (x, mean, std) => (
+                (1 / (std * Math.sqrt(2 * Math.PI))) *
+                Math.exp(-0.5 * Math.pow((x - mean) / std, 2))
+            );
+
+            const min = 0;
+            const max = <%= stretch.maxRange %>;
+            const mean = max / 2;
+            const std = max / 6;
+
+            const start = <%= stretch.start %>;
+            const current = <%= stretch.current %>;
+
+            const labels = [], bell = [], dots = [], startDot = [];
+
+            for (let x = min; x <= max; x++) {
+                const y = gaussian(x, mean, std);
+                labels.push(x);
+                bell.push(y);
+                dots.push(x === current ? y : null);
+                startDot.push(x === start ? y : null);
+            }
+
+            new Chart(document.getElementById("chart-<%= index %>").getContext("2d"), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            data: bell,
+                            borderColor: '#d4ff00',
+                            backgroundColor: 'rgba(212, 255, 0, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 0
+                        },
+                        {
+                            data: startDot,
+                            backgroundColor: '#aaa',
+                            pointRadius: 5,
+                            showLine: false
+                        },
+                        {
+                            data: dots,
+                            backgroundColor: '#00ff80',
+                            pointRadius: 5,
+                            showLine: false
+                        }
+                    ]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false },
+                        x: {
+                            ticks: { color: '#ccc', maxRotation: 0, minRotation: 0 },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        })();
+    </script>
+</div>
