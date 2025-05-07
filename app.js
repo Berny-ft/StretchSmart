@@ -1,9 +1,13 @@
 const express = require('express');
 const path = require("path");
 const fs = require('fs');
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const ejs = require('ejs');
 const app = express();
 const PORT = 3000;
+const User = require('./models/user');
+const Activity = require('./models/activity');
 const axios = require('axios');
 require('dotenv').config();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -17,6 +21,15 @@ app.use(express.static(path.join(__dirname,'public')));
 
 // we also need a middleware to parse body data whenever we use post
 app.use(express.urlencoded({extended: false}));// that means that the content isn't shown
+
+//Set up database
+const mongoURI = 'mongodb+srv://Berny:<h2bNFCbACczjE1OZ>@cluster0.1hu3ha8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+mongoose.connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => app.listen(3000,()=> {
+    console.log("The server is running at  http://localhost:3000"); //Only want to listen once db is connected
+})).catch(err => console.error('MongoDB connection error:', err));
 
 
 app.get(['/','/home'],async (req,res) => {
@@ -45,6 +58,58 @@ app.get(['/','/home'],async (req,res) => {
         res.send('the server failed to serve the page')
     }
 })
+
+
+app.get('/login', async (req, res) => {
+    res.render('login.ejs');
+});
+
+app.post('/login', async (req, res) => {
+    //get data
+    const { username, password } = req.body;
+
+    //check that username exists in database
+    const user = await User.findOne({ username: username });
+    if (!user) {
+        res.render('login.ejs'); //TODO error message
+    } else {
+        //check password validity
+        const isPasswordGood = await bcrypt.compare(password, user.password);
+        if (isPasswordGood) {
+            //update cookies
+            res.render("/");
+        } else {
+            res.render('login.ejs'); //TODO error message
+        }
+    }
+});
+
+
+app.get('/signup', (req, res) => {
+    res.render('signup.ejs');
+});
+
+app.post('/signup', async (req, res) => {
+    const { username, password, confimPassword } = req.body;
+    //Note: Check that username and password have correct constraints and that both passwords are the same on the ejs file
+    //check that username does not exist in database
+    if(!(await User.exists({ username: `${username}`}))){
+        res.render('signup.ejs'); //TODO add error msg on ejs side username alreay taken
+    }
+
+    //create account (add to db)
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+        username: `${username}`,
+        password: hashedPassword
+    });
+    user.save().then((result) => {
+        //TODO Save cookies
+        res.redirect('/');
+    }).catch((err) => {
+        res.status(500).send("Error adding new user.");
+    });
+});
 
 
 app.get('/profile', async (req, res)=>{
@@ -253,9 +318,3 @@ app.post('/reset', (req, res)=>{
 app.use((req, res) => {
     res.status(404).send('Page not found.');
 });
-
-
-app.listen(3000,()=> {
-    console.log("The server is running at  http://localhost:3000");
-})
-
