@@ -160,6 +160,9 @@ app.get('/logout', auth,noCache, (req,res)=>{
     });
 })
 app.get('/profile',auth, async (req, res)=>{
+    // fetch the username from the database and
+    const user = await User.findById(req.session.userId);
+    const username = user?.username || 'User'; // if the username property exist or just User
 
     const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
     const stats = JSON.parse(statsOBJ);
@@ -167,7 +170,7 @@ app.get('/profile',auth, async (req, res)=>{
     const numbOfWarmups = stats.warmupSessions
     const body = await ejs.renderFile(path.join(__dirname,'views', 'profile.ejs'),
         {
-            username : 'Berny',
+            username : username,
             days : 1,
             numberOfStretches : numbOfStretches,
             numberOfWarmups : numbOfWarmups

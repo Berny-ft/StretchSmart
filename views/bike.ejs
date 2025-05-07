@@ -8,7 +8,7 @@
 
     <div class="bg-zinc-800 p-6 rounded-2xl mb-10">
         <div class="mb-4">
-            <label class="block text-sm mb-1">Progress toward 32 km/h</label>
+            <label class="block text-sm mb-1">Progress towards target pace</label>
             <div class="w-full h-4 bg-zinc-700 rounded-full">
                 <div class="h-full bg-lime-400 rounded-full" style="width: 65%;"></div>
             </div>
@@ -39,10 +39,59 @@
 
     <div class="bg-zinc-800 p-6 rounded-2xl mb-8">
         <h2 class="text-lg font-semibold mb-4">Pace Over Time</h2>
-        <div class="h-64 bg-zinc-700 rounded-md flex items-center justify-center text-gray-400">
-            (Chart.js)
+        <div class="h-64 rounded-md">
+            <canvas id="paceChart" class="w-full h-full"></canvas>
         </div>
+        <!---this renders the chart  not too sure about how it works though -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const ctx = document.getElementById('paceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1', '2', '3', '4', '5'],
+                    datasets: [{
+                        //label: null,
+                        data: [5.1, 5.1, 4.0, 4.5, 4.3],
+                        borderColor: 'rgb(163 230 53)', // Tailwind lime-400
+                        backgroundColor: 'rgba(163, 230, 53, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: false,
+                                text: 'Minutes per Kilometer'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: false,
+                                text: 'Date'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display:false,
+                            labels: {
+                                color: '#a3e635' // match lime-400
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+
     </div>
+
 
     <div class="flex justify-center">
         <button onclick="openAddSessionModal()" class="bg-lime-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-lime-300 transition">
