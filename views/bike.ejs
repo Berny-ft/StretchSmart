@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <div class="flex justify-between">
+    <div class="flex justify-center">
         <button onclick="openAddSessionModal()" class="bg-lime-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-lime-300 transition">
             Add Training Session
         </button>
@@ -92,3 +92,21 @@
         </div>
     </div>
 </main>
+
+<script>
+    function openModal() {
+        document.getElementById("editModal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+        document.getElementById("editModal").classList.add("hidden");
+    }
+
+    function openAddSessionModal() {
+        document.getElementById("addSessionModal").classList.remove("hidden");
+    }
+
+    function closeAddSessionModal() {
+        document.getElementById("addSessionModal").classList.add("hidden");
+    }
+</script>

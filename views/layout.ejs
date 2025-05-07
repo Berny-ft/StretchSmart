@@ -59,10 +59,24 @@
         <span class="material-symbols-filled text-3xl">home</span>
         Home
     </a>
+
+    <a href="/sports" class="flex flex-col items-center <%= pageName === 'sports'? "text-neon" : "text-white"%>">
+        <span class="material-symbols-filled text-3xl">steps</span>
+        Sports
+    </a>
+
     <a href="/profile" class="flex flex-col items-center <%= pageName === 'profile'? "text-neon" : "text-white"%>">
         <span class="material-symbols-filled text-3xl">person</span>
         Profile
     </a>
+
+    <%if(pageName !== 'signup' && pageName !== 'login') {%>
+    <a href="/logout" class="flex flex-col items-center text-neon">
+        <span class="material-symbols-filled text-3xl">logout</span>
+        Log out
+    </a>
+    <% } %>
+
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

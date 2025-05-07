@@ -9,8 +9,17 @@ const PORT = 3000;
 const User = require('./models/user');
 const Activity = require('./models/activity');
 const axios = require('axios');
+const session =  require('express-session');
 require('dotenv').config();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const mongoURI = process.env.MONGOOSE; // placed it in the env file
+
+//middleware to use express session to track the user
+app.use(session({
+    secret:"a random string",
+    resave: false,
+    saveUninitialized:false,
+}))
 
 // middleware to use ejs
 app.set('view engine', 'ejs') // setting ejs as the view engine
@@ -23,7 +32,6 @@ app.use(express.static(path.join(__dirname,'public')));
 app.use(express.urlencoded({extended: false}));// that means that the content isn't shown
 
 //Set up database
-const mongoURI = 'mongodb+srv://Berny:<h2bNFCbACczjE1OZ>@cluster0.1hu3ha8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -31,8 +39,22 @@ mongoose.connect(mongoURI, {
     console.log("The server is running at  http://localhost:3000"); //Only want to listen once db is connected
 })).catch(err => console.error('MongoDB connection error:', err));
 
+// the authentication middleware
+function auth(req,res,next){
+    if(!req.session.userId){
+        return res.redirect("/login")
+    }
+    next();
+}
 
-app.get(['/','/home'],async (req,res) => {
+// the no caching middleware to block the browser from caching protected pages so that we can't revisit them after login out
+/// this is working for some reason
+function noCache(req,res,next) {
+    res.set('Cache-Control','no-store');
+    next();
+}
+
+app.get(['/','/home'],auth,noCache,async (req,res) => {
 
     try {
         const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
@@ -59,10 +81,33 @@ app.get(['/','/home'],async (req,res) => {
     }
 })
 
+app.get('/login',(req, res)=> {
+    fs.readFile(path.join(__dirname,'views','login.ejs'),"utf-8",(err,data)=>{
+        if(err){
+            return res.status(500).send("Internal Server error");
+        } else {
+            res.render('layout.ejs', {
+                pageName : 'login',
+                content:data,
+                stretches:undefined
+            })
+        }
+    })
+})
 
-app.get('/login', async (req, res) => {
-    res.render('login.ejs');
-});
+app.get("/signup",(req,res)=>{
+    fs.readFile(path.join(__dirname, 'views', 'signup.ejs'),'utf-8',(err, data)=>{
+        if(err) {
+            return res.status(500).send("internal Server Error")
+        } else {
+            res.render('layout.ejs', {
+                pageName : 'signup',
+                content:data,
+                stretches:undefined
+            })
+        }
+    })
+})
 
 app.post('/login', async (req, res) => {
     //get data
@@ -71,48 +116,50 @@ app.post('/login', async (req, res) => {
     //check that username exists in database
     const user = await User.findOne({ username: username });
     if (!user) {
-        res.render('login.ejs'); //TODO error message
+        res.redirect('/login');
     } else {
         //check password validity
         const isPasswordGood = await bcrypt.compare(password, user.password);
         if (isPasswordGood) {
             //update cookies
-            res.render("/");
+            req.session.userId = user._id;
+            res.redirect('/home');
+
         } else {
-            res.render('login.ejs'); //TODO error message
+            res.redirect('/login');
         }
     }
 });
 
-
-app.get('/signup', (req, res) => {
-    res.render('signup.ejs');
-});
-
 app.post('/signup', async (req, res) => {
-    const { username, password, confimPassword } = req.body;
+    const { username, password, confirmPassword } = req.body;
     //Note: Check that username and password have correct constraints and that both passwords are the same on the ejs file
-    //check that username does not exist in database
-    if(!(await User.exists({ username: `${username}`}))){
-        res.render('signup.ejs'); //TODO add error msg on ejs side username alreay taken
+    //check that username does not exist in database // should instead redirect if the username Does exist
+    if((await User.exists({ username: username}))){
+        return res.redirect('/signup'); // render a pop-up mentioning that the username is taken
     }
 
     //create account (add to db)
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
-        username: `${username}`,
+        username: username,
         password: hashedPassword
     });
-    user.save().then((result) => {
-        //TODO Save cookies
+    user.save().then(() => {
+        // start the session
+        req.session.userId = user._id;
         res.redirect('/');
     }).catch((err) => {
         res.status(500).send("Error adding new user.");
     });
 });
 
-
-app.get('/profile', async (req, res)=>{
+app.get('/logout', auth,noCache, (req,res)=>{
+    req.session.destroy(()=>{
+        res.redirect('/login');
+    });
+})
+app.get('/profile',auth, async (req, res)=>{
 
     const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
     const stats = JSON.parse(statsOBJ);
@@ -137,7 +184,7 @@ app.get('/profile', async (req, res)=>{
 
 const statsPath = path.join(__dirname, 'data', 'stats.json');
 
-app.post('/log/stretch', (req, res) => {
+app.post('/log/stretch',auth,noCache, (req, res) => {
     try {
         const progress = JSON.parse(fs.readFileSync(statsPath));
         progress.stretchSessions = (progress.stretchSessions || 0) + 1;
@@ -149,7 +196,7 @@ app.post('/log/stretch', (req, res) => {
     }
 });
 
-app.post('/log/warmup', (req, res) => {
+app.post('/log/warmup', auth,noCache,(req, res) => {
     try {
         const progress = JSON.parse(fs.readFileSync(statsPath));
         progress.warmupSessions = (progress.warmupSessions || 0) + 1;
@@ -163,7 +210,7 @@ app.post('/log/warmup', (req, res) => {
 
 
 
-app.post('/generate', async (req, res) => {
+app.post('/generate', auth,noCache,async (req, res) => {
     const selectedType = req.body.type;
     const time = Math.round(req.body.time / 10);
     const effort = Math.round(req.body.effort / 10);
@@ -303,7 +350,7 @@ app.post('/generate', async (req, res) => {
 });
 
 
-app.post('/reset', (req, res)=>{
+app.post('/reset',auth,noCache, (req, res)=>{
     const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
     const stats = JSON.parse(statsOBJ);
     stats.stretchSessions =0;
@@ -314,6 +361,65 @@ app.post('/reset', (req, res)=>{
 
 });
 
+
+
+app.get("/sports",auth,noCache,(req,res)=>{
+
+    fs.readFile(path.join(__dirname, 'views', 'sports.ejs'),'utf8',(err, data)=>{
+        if(err) {
+            return res.status(500).send("internal Server Error")
+        } else {
+            res.render('layout.ejs', {
+                pageName : 'sports',
+                content:data,
+                stretches:undefined
+            })
+        }
+    })
+})
+
+app.get("/sports/run",auth,noCache,(req,res)=>{
+
+    fs.readFile(path.join(__dirname, 'views', 'run.ejs'),'utf8',(err, data)=>{
+        if(err) {
+            return res.status(500).send("internal Server Error")
+        } else {
+            res.render('layout.ejs', {
+                pageName : 'run',
+                content:data,
+                stretches:undefined
+            })
+        }
+    })
+})
+
+app.get("/sports/swim",auth,noCache,(req,res)=>{
+    fs.readFile(path.join(__dirname, 'views', 'swim.ejs'),'utf8',(err, data)=>{
+        if(err) {
+            return res.status(500).send("internal Server Error")
+        } else {
+            res.render('layout.ejs', {
+                pageName : 'swim',
+                content:data,
+                stretches:undefined
+            })
+        }
+    })
+})
+
+app.get("/sports/bike",auth,noCache,(req,res)=>{
+    fs.readFile(path.join(__dirname, 'views', 'bike.ejs'),'utf8',(err, data)=>{
+        if(err) {
+            return res.status(500).send("internal Server Error")
+        } else {
+            res.render('layout.ejs', {
+                pageName : 'bike',
+                content:data,
+                stretches:undefined
+            })
+        }
+    })
+})
 
 app.use((req, res) => {
     res.status(404).send('Page not found.');
