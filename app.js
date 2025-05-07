@@ -7,7 +7,6 @@ const ejs = require('ejs');
 const app = express();
 const PORT = 3000;
 const User = require('./models/user');
-const Activity = require('./models/activity');
 const axios = require('axios');
 const session =  require('express-session');
 require('dotenv').config();
@@ -143,7 +142,9 @@ app.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
         username: username,
-        password: hashedPassword
+        password: hashedPassword,
+        warmups: 0,
+        stretches: 0
     });
     user.save().then(() => {
         // start the session

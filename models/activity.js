@@ -19,8 +19,8 @@ const activitySchema = new Schema({
         type: Date,
         required: true
     }
-}, {timestamps: true});
+}, { _id: false});
 
 const Activity = mongoose.model('Activity', activitySchema);
 
-module.exports = Activity;
+module.exports = activitySchema;
