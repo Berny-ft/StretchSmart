@@ -3,7 +3,8 @@
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-lime-400">Running Progress</h1>
         <button class="text-red-400 hover:text-red-300 flex items-center gap-1">
-            <span class="material-symbols-outlined">delete</span> Reset
+            <span class="material-symbols-outlined"
+                  id="resetButton">delete</span> Reset
         </button>
     </div>
 
@@ -12,27 +13,27 @@
         <div class="mb-4">
             <label class="block text-sm mb-1">Progress towards target pace</label>
             <div class="w-full h-4 bg-zinc-700 rounded-full">
-                <div class="h-full bg-lime-400 rounded-full" style="width: 65%;"></div>
+                <div class="h-full bg-lime-400 rounded-full" style="width: <%= progressPercentage %>%; max-width : 100%;"></div>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-6 mt-6 text-sm">
             <div>
                 <p class="text-gray-400">Current Pace</p>
-                <p class="text-xl font-semibold">5:10 /km</p>
+                <p class="text-xl font-semibold"><%= currentPace %></p>
             </div>
             <div>
                 <p class="text-gray-400">Best Pace</p>
-                <p class="text-xl font-semibold">4:55 /km</p>
+                <p class="text-xl font-semibold"><%= bestPace %></p>
             </div>
             <div>
                 <p class="text-gray-400">Target Pace</p>
-                <p class="text-xl font-semibold">4:30 /km</p>
+                <p class="text-xl font-semibold"><%= targetPace %></p>
             </div>
             <div class="flex justify-between items-center">
                 <div>
                     <p class="text-gray-400">Days Remaining</p>
-                    <p class="text-xl font-semibold">18 days</p>
+                    <p class="text-xl font-semibold"><%= daysRemaining %></p>
                 </div>
                 <button onclick="openModal()" class="text-lime-400 hover:underline text-sm">
                     Edit
@@ -54,10 +55,10 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['1', '2', '3', '4', '5'],
+                    labels: <%- JSON.stringify(graphDates || []) %>, // empty at the start
                     datasets: [{
                         //label: null,
-                        data: [5.1, 5.1, 4.0, 4.5, 4.3],
+                        data: <%- JSON.stringify(graphTimes || []) %>,
                         borderColor: 'rgb(163 230 53)', // Tailwind lime-400
                         backgroundColor: 'rgba(163, 230, 53, 0.1)',
                         tension: 0.3,
@@ -99,7 +100,7 @@
 
     <!-- Buttons -->
     <div class="flex justify-center">
-        <button class="bg-lime-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-lime-300 transition">
+        <button onclick="openAddSessionModal()" class="bg-lime-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-lime-300 transition">
             Add Training Session
         </button>
     </div>
@@ -191,9 +192,50 @@
 
 
 </main>
+
+<script>
+    document.getElementById('editGoalForm').addEventListener('submit', function (e) {
+        const paceInput = document.getElementById('targetPace').value.trim();
+        const dateInput = document.getElementById('endDate').value.trim();
+
+        // 1. Validate time (only if not empty)
+        if (paceInput !== '') {
+            const timeRegex = /^(?:[1-9]\d*|0):[0-5]\d$/;
+            if (!timeRegex.test(paceInput)) {
+                alert("Invalid pace format. Use mm:ss with positive minutes and seconds under 60.");
+                e.preventDefault();
+                return;
+            }
+        }
+
+        // 2. Validate date (only if not empty)
+        if (dateInput !== '') {
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!dateRegex.test(dateInput)) {
+                alert("Invalid date format. Use YYYY-MM-DD.");
+                e.preventDefault();
+                return;
+            }
+
+            const selectedDate = new Date(dateInput);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (selectedDate <= today) {
+                alert("Date must be in the future.");
+                e.preventDefault();
+            }
+        }
+    });
+</script>
+
+
+
 <script>
     function openModal() {
         document.getElementById("editModal").classList.remove("hidden");
+
+
     }
 
     function closeModal() {
@@ -209,3 +251,22 @@
     }
 </script>
 
+<script>
+    document.getElementById('resetButton').addEventListener('click', function(e) {
+        e.preventDefault();
+        const isConfirmed = confirm("Are you sure you want to reset all running data? This cannot be undone.");
+
+        if (isConfirmed) {
+            fetch('/sports/run/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            });
+        }
+    });
+</script>

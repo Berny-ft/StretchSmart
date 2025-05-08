@@ -48,7 +48,7 @@ function auth(req,res,next){
 }
 
 // the no caching middleware to block the browser from caching protected pages so that we can't revisit them after login out
-/// this is working for some reason
+/// this is not working for some reason
 function noCache(req,res,next) {
     res.set('Cache-Control','no-store');
     next();
@@ -145,9 +145,24 @@ app.post('/signup', async (req, res) => {
         username: username,
         password: hashedPassword
     });
-    user.save().then(() => {
+    user.save().then(async () => {
         // start the session
         req.session.userId = user._id;
+
+        // at this point we need to initialize the activity data of the user
+        const activity = new Activity({
+            username: user._id,
+            pace: [],
+            targetPace: 0,
+            endDate: new Date(2000, 0,0),
+            startDate: 0,
+            stretchNumb: 0,
+            warmNumb: 0
+        })
+
+
+        await activity.save();
+
         res.redirect('/');
     }).catch((err) => {
         res.status(500).send("Error adding new user.");
@@ -381,21 +396,137 @@ app.get("/sports",auth,noCache,(req,res)=>{
     })
 })
 
-app.get("/sports/run",auth,noCache,(req,res)=>{
+function formatPace(seconds) {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min}:${sec.toString().padStart(2, '0')}`;
+}
 
-    fs.readFile(path.join(__dirname, 'views', 'run.ejs'),'utf8',(err, data)=>{
-        if(err) {
-            return res.status(500).send("internal Server Error")
-        } else {
-            res.render('layout.ejs', {
-                pageName : 'run',
-                content:data,
-                stretches:undefined
-            })
-        }
+function unFormatPace(string){
+    const [min, sec] = string.split(':').map(Number);
+    return (60*min)+sec
+}
+
+function toMinutes(array){
+    const times = array.map((value) =>{
+        return value.time/60 // convert to minutes
     })
+
+    const dates = array.map((value)=> {
+        return value.date.toLocaleDateString('en-US', { dateStyle: 'short' });
+    })
+
+    return {
+        times,
+        dates
+    }
+}
+
+app.get("/sports/run", auth, noCache, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const activity = await Activity.findOne({ username: userId });
+
+        const lastPace = activity?.pace.length ? activity.pace[activity.pace.length - 1].time : 0;
+        const bestPace = activity?.pace.length
+            ? Math.min(...activity.pace.map(p => p.time))
+            : 0;
+        const formattedTarget = formatPace(activity?.targetPace || 0);
+        const formattedBest = formatPace(bestPace);
+        const formattedCurrent = formatPace(lastPace);
+        //const {graphTimes, graphDates} = toMinutes(activity.pace);
+        const { times: graphTimes, dates: graphDates } = toMinutes(activity.pace);
+
+        const targetPaceValue = activity?.targetPace || 0;
+        let progressPercentage = 0;
+        let cappedProgress = 0;
+
+        if (targetPaceValue > 0 && lastPace > 0) {
+            progressPercentage = (targetPaceValue / lastPace) * 100; // How close current is to target
+            cappedProgress = Math.min(progressPercentage, 100); // Cap for progress bar
+        }
+
+
+        console.log(graphDates);
+        console.log(graphTimes);
+
+        const body = await ejs.renderFile(path.join(__dirname, 'views', 'run.ejs'), {
+            progressPercentage: progressPercentage.toFixed(0),
+            graphTimes : graphTimes,
+            graphDates : graphDates,
+            currentPace: formattedCurrent,
+            targetPace: formattedTarget,
+            bestPace: formattedBest,
+            daysRemaining: activity?.endDate ? Math.ceil((new Date(activity.endDate) - Date.now()) / (1000 * 60 * 60 * 24)) : 0,
+        });
+
+        res.render('layout.ejs', {
+            pageName: 'run',
+            content: body,
+            stretches: undefined
+        });
+    } catch (e) {
+        console.log(e.toString());
+        return res.status(500).send("internal Server Error");
+    }
+});
+
+app.post('/sports/run/edit', auth, noCache, async (req, res) => {
+    const { targetPace, endDate } = req.body;
+    const userId = req.session.userId;
+
+    const activity = await Activity.findOne({ username: userId });
+    if (!activity) return res.status(404).send("Activity not found");
+
+    // Update targetPace only if provided
+    if (targetPace && targetPace.trim() !== '') {
+        const [min, sec] = targetPace.split(':').map(Number);
+        activity.targetPace = (min * 60) + sec;
+    }
+
+    // Update endDate only if provided
+    if (endDate && endDate.trim() !== '') {
+        activity.endDate = endDate;
+    }
+
+    await activity.save();
+    return res.redirect('/sports/run');
+});
+
+app.post('/sports/run/add',auth, noCache, async (req,res)=>{
+    const {sessionDate, sessionPace} = req.body;
+    const userId = req.session.userId
+    const activity = await Activity.findOne({username: userId})
+
+    const entry = {
+        time : unFormatPace(sessionPace),
+        date : new Date(sessionDate), // the cpy constructor
+    }
+    activity.pace.push(entry);
+    await activity.save();
+    return res.redirect('/sports/run')
+
 })
 
+app.post('/sports/run/delete', auth, noCache, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const activity = await Activity.findOne({ username: userId });
+
+        // Reset running-related data
+        activity.pace = [];
+        activity.targetPace = 0;
+        activity.endDate = new Date(2000, 0, 0);
+
+        await activity.save();
+        res.redirect('/sports/run');
+    } catch (error) {
+        console.error("Delete error:", error);
+        res.status(500).send("Error resetting running data");
+    }
+});
+
+/*
 app.get("/sports/swim",auth,noCache,(req,res)=>{
     fs.readFile(path.join(__dirname, 'views', 'swim.ejs'),'utf8',(err, data)=>{
         if(err) {
@@ -423,6 +554,10 @@ app.get("/sports/bike",auth,noCache,(req,res)=>{
         }
     })
 })
+
+
+ */
+
 
 app.use((req, res) => {
     res.status(404).send('Page not found.');
