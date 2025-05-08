@@ -15,7 +15,7 @@ const mongoURI = process.env.MONGOOSE; // placed it in the env file
 
 //middleware to use express session to track the user
 app.use(session({
-    secret:"a random string",
+    secret:"hsf763hAUh637rd9AjAD4Aiu8A",
     resave: false,
     saveUninitialized:false,
 }))
@@ -56,7 +56,7 @@ function noCache(req,res,next) {
 app.get(['/','/home'],auth,noCache,async (req,res) => {
 
     try {
-        const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
+        /*const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
         const stats = JSON.parse(statsOBJ);
         const numbOfStretches = stats.stretchSessions;
         const numbOfWarmups = stats.warmupSessions
@@ -66,7 +66,12 @@ app.get(['/','/home'],auth,noCache,async (req,res) => {
                 numberOfStretches: numbOfStretches,
                 numberOfWarmups: numbOfWarmups
             });
-
+        */
+       const user = await User.findById(req.session._userId);
+       const body = {
+            numberOfStretches: user.stretches,
+            numberOfWarmups: user.warmups
+       };
         res.render('layout.ejs',
             {
                 stretches : undefined,
@@ -131,8 +136,8 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/signup', async (req, res) => {
-    const { username, password, confirmPassword } = req.body;
-    //Note: Check that username and password have correct constraints and that both passwords are the same on the ejs file
+    const { username, password } = req.body;
+    //Note: Check that username and password have correct constraints on the ejs file
     //check that username does not exist in database // should instead redirect if the username Does exist
     if((await User.exists({ username: username}))){
         return res.redirect('/signup'); // render a pop-up mentioning that the username is taken
@@ -188,11 +193,14 @@ app.get('/profile',auth, async (req, res)=>{
 
 const statsPath = path.join(__dirname, 'data', 'stats.json');
 
-app.post('/log/stretch',auth,noCache, (req, res) => {
+app.post('/log/stretch',auth,noCache, async (req, res) => {
     try {
-        const progress = JSON.parse(fs.readFileSync(statsPath));
+        /*const progress = JSON.parse(fs.readFileSync(statsPath));
         progress.stretchSessions = (progress.stretchSessions || 0) + 1;
-        fs.writeFileSync(statsPath, JSON.stringify(progress, null, 2));
+        fs.writeFileSync(statsPath, JSON.stringify(progress, null, 2));*/
+        const user = await User.findById(req.session._userId);
+        user.stretches += 1;
+        await user.save();
         res.sendStatus(200);
     } catch (err) {
         console.error("Failed to update stretch count:", err);
@@ -200,11 +208,14 @@ app.post('/log/stretch',auth,noCache, (req, res) => {
     }
 });
 
-app.post('/log/warmup', auth,noCache,(req, res) => {
+app.post('/log/warmup', auth,noCache,async (req, res) => {
     try {
-        const progress = JSON.parse(fs.readFileSync(statsPath));
+        /*const progress = JSON.parse(fs.readFileSync(statsPath));
         progress.warmupSessions = (progress.warmupSessions || 0) + 1;
-        fs.writeFileSync(statsPath, JSON.stringify(progress, null, 2));
+        fs.writeFileSync(statsPath, JSON.stringify(progress, null, 2));*/
+        const user = await User.findById(req.session._userId);
+        user.warmups += 1;
+        await user.save();
         res.sendStatus(200);
     } catch (err) {
         console.error("Failed to update warm up count:", err);
@@ -224,9 +235,6 @@ app.post('/generate', auth,noCache,async (req, res) => {
     if(time < 1 ){
         return res.redirect('/home');
     }
-
-
-
 
     if(selectedType === 'Warmup'){
         try {
@@ -272,8 +280,6 @@ app.post('/generate', auth,noCache,async (req, res) => {
 
             const warmupList = JSON.parse(replyText);
 
-
-
             const body = await ejs.renderFile(path.join(__dirname,'views','stretch.ejs'),{
                 logType : 'warmup'
             });
@@ -284,17 +290,14 @@ app.post('/generate', auth,noCache,async (req, res) => {
                 stretches: warmupList
             });
 
-
         } catch (error) {
             console.error(error.response?.data || error.message);
             return res.status(500).send("Error generating stretching plan.");
         }
     }
 
-
     try {
         const data = fs.readFileSync(path.join(__dirname, 'data', 'stretchData.json'));
-
 
         const prompt = `
           Given the following:
@@ -334,8 +337,6 @@ app.post('/generate', auth,noCache,async (req, res) => {
 
         const stretchList = JSON.parse(replyText);
 
-
-
         const body = await ejs.renderFile(path.join(__dirname,'views','stretch.ejs'), {
             logType: 'stretch'
         });
@@ -346,7 +347,6 @@ app.post('/generate', auth,noCache,async (req, res) => {
             stretches: stretchList
         });
 
-
     } catch (error) {
         console.error(error.response?.data || error.message);
         res.status(500).send("Error generating stretching plan.");
@@ -354,15 +354,17 @@ app.post('/generate', auth,noCache,async (req, res) => {
 });
 
 
-app.post('/reset',auth,noCache, (req, res)=>{
-    const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
+app.post('/reset',auth,noCache, async (req, res)=>{
+    /*const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
     const stats = JSON.parse(statsOBJ);
     stats.stretchSessions =0;
     stats.warmupSessions =0;
-    fs.writeFileSync((path.join(__dirname,'data','stats.json')),JSON.stringify(stats,null, 2));
+    fs.writeFileSync((path.join(__dirname,'data','stats.json')),JSON.stringify(stats,null, 2));*/
+    const user = await User.findById(req.session._userId);
+    user.stretches = 0;
+    user.warmups = 0;
+    await user.save();
     return res.redirect('/profile');
-
-
 });
 
 
