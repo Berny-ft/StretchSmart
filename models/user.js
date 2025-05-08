@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const activitySchema = require('./activity');
+const goalSchema = require('./goal');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -20,7 +21,8 @@ const userSchema = new Schema({
         type: Number,
         required: true
     },
-    activities: [activitySchema]
+    activities: [activitySchema],
+    goals: [goalSchema]
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);

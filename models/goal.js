@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const activitySchema = new Schema({
+const goalSchema = new Schema({
     distance: {
         type: Number,
         required: true
@@ -10,10 +10,14 @@ const activitySchema = new Schema({
         type: Number,
         required: true
     },
-    date: {
+    startDate: {
+        type: Date,
+        required: true
+    },
+    endDate: {
         type: Date,
         required: true
     }
 }, { _id: false});
 
-module.exports = activitySchema;
+module.exports = goalSchema;

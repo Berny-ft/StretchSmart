@@ -15,7 +15,7 @@ const mongoURI = process.env.MONGOOSE; // placed it in the env file
 
 //middleware to use express session to track the user
 app.use(session({
-    secret:"hsf763hAUh637rd9AjAD4Aiu8A",
+    secret:"a random string",
     resave: false,
     saveUninitialized:false,
 }))
@@ -56,17 +56,6 @@ function noCache(req,res,next) {
 app.get(['/','/home'],auth,noCache,async (req,res) => {
 
     try {
-        /*const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
-        const stats = JSON.parse(statsOBJ);
-        const numbOfStretches = stats.stretchSessions;
-        const numbOfWarmups = stats.warmupSessions
-
-        const body = await ejs.renderFile((path.join(__dirname, 'views', 'home.ejs')),
-            {
-                numberOfStretches: numbOfStretches,
-                numberOfWarmups: numbOfWarmups
-            });
-        */
        const user = await User.findById(req.session._userId);
        const body = {
             numberOfStretches: user.stretches,
@@ -169,11 +158,8 @@ app.get('/profile',auth, async (req, res)=>{
     // fetch the username from the database and
     const user = await User.findById(req.session.userId);
     const username = user?.username || 'User'; // if the username property exist or just User
-
-    const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
-    const stats = JSON.parse(statsOBJ);
-    const numbOfStretches = stats.stretchSessions;
-    const numbOfWarmups = stats.warmupSessions
+    const numbOfStretches = user.stretches;
+    const numbOfWarmups = user.warmups;
     const body = await ejs.renderFile(path.join(__dirname,'views', 'profile.ejs'),
         {
             username : username,
@@ -191,13 +177,8 @@ app.get('/profile',auth, async (req, res)=>{
 })
 
 
-const statsPath = path.join(__dirname, 'data', 'stats.json');
-
 app.post('/log/stretch',auth,noCache, async (req, res) => {
     try {
-        /*const progress = JSON.parse(fs.readFileSync(statsPath));
-        progress.stretchSessions = (progress.stretchSessions || 0) + 1;
-        fs.writeFileSync(statsPath, JSON.stringify(progress, null, 2));*/
         const user = await User.findById(req.session._userId);
         user.stretches += 1;
         await user.save();
@@ -210,9 +191,6 @@ app.post('/log/stretch',auth,noCache, async (req, res) => {
 
 app.post('/log/warmup', auth,noCache,async (req, res) => {
     try {
-        /*const progress = JSON.parse(fs.readFileSync(statsPath));
-        progress.warmupSessions = (progress.warmupSessions || 0) + 1;
-        fs.writeFileSync(statsPath, JSON.stringify(progress, null, 2));*/
         const user = await User.findById(req.session._userId);
         user.warmups += 1;
         await user.save();
@@ -355,11 +333,6 @@ app.post('/generate', auth,noCache,async (req, res) => {
 
 
 app.post('/reset',auth,noCache, async (req, res)=>{
-    /*const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
-    const stats = JSON.parse(statsOBJ);
-    stats.stretchSessions =0;
-    stats.warmupSessions =0;
-    fs.writeFileSync((path.join(__dirname,'data','stats.json')),JSON.stringify(stats,null, 2));*/
     const user = await User.findById(req.session._userId);
     user.stretches = 0;
     user.warmups = 0;
@@ -430,3 +403,29 @@ app.get("/sports/bike",auth,noCache,(req,res)=>{
 app.use((req, res) => {
     res.status(404).send('Page not found.');
 });
+
+/*
+    How to add an activity:
+    const { distance, pace, date } = req.body;
+    const user = User.findById(req.session._userId);
+    const newActivity = {
+        distance,
+        pace,
+        date: date ? new Date(date) : new Date() // default to now if date not provided
+    };
+    user.activities.push(newActivity);
+    await user.save();
+*/
+/*
+    How to add a goal:
+    const { distance, pace, startDate, endDate } = req.body;
+    const user = User.findById(req.session._userId);
+    const newGoal = {
+        distance,
+        pace,
+        startDate: date ? new Date(date) : new Date(), // default to now if date not provided
+        endDate: date ? new Date(date) : new Date() // default to now if date not provided
+    };
+    user.goals.push(newGoal);
+    await user.save();
+*/
