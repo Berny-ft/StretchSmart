@@ -54,32 +54,24 @@ function noCache(req,res,next) {
     next();
 }
 
-app.get(['/','/home'],auth,noCache,async (req,res) => {
-
+app.get(['/','/home'], auth, noCache, async (req,res) => {
     try {
-        const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
-        const stats = JSON.parse(statsOBJ);
-        const numbOfStretches = stats.stretchSessions;
-        const numbOfWarmups = stats.warmupSessions
+        const activity = await Activity.findOne({ username: req.session.userId });
 
-        const body = await ejs.renderFile((path.join(__dirname, 'views', 'home.ejs')),
-            {
-                numberOfStretches: numbOfStretches,
-                numberOfWarmups: numbOfWarmups
-            });
+        const body = await ejs.renderFile(path.join(__dirname, 'views', 'home.ejs'), {
+            numberOfStretches: activity?.stretchSessions || 0,
+            numberOfWarmups: activity?.warmupSessions || 0
+        });
 
-        res.render('layout.ejs',
-            {
-                stretches : undefined,
-                pageName: 'home',
-                content: body
-            }
-        );
+        res.render('layout.ejs', {
+            stretches : undefined,
+            pageName: 'home',
+            content: body
+        });
     } catch (error){
-        res.status(500);
-        res.send('the server failed to serve the page')
+        res.status(500).send('the server failed to serve the page');
     }
-})
+});
 
 app.get('/login',(req, res)=> {
     fs.readFile(path.join(__dirname,'views','login.ejs'),"utf-8",(err,data)=>{
@@ -154,11 +146,11 @@ app.post('/signup', async (req, res) => {
             username: user._id,
             pace: [],
             targetPace: 0,
-            endDate: new Date(2000, 0,0),
+            endDate: new Date(2000, 0, 0),
             startDate: 0,
-            stretchNumb: 0,
-            warmNumb: 0
-        })
+            stretchSessions: 0, // Changed from stretchNumb
+            warmupSessions: 0   // Changed from warmNumb
+        });
 
 
         await activity.save();
@@ -175,38 +167,35 @@ app.get('/logout', auth,noCache, (req,res)=>{
     });
 })
 app.get('/profile',auth, async (req, res)=>{
-    // fetch the username from the database and
-    const user = await User.findById(req.session.userId);
-    const username = user?.username || 'User'; // if the username property exist or just User
-
-    const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
-    const stats = JSON.parse(statsOBJ);
-    const numbOfStretches = stats.stretchSessions;
-    const numbOfWarmups = stats.warmupSessions
-    const body = await ejs.renderFile(path.join(__dirname,'views', 'profile.ejs'),
-        {
-            username : username,
-            days : 1,
-            numberOfStretches : numbOfStretches,
-            numberOfWarmups : numbOfWarmups
-
-        })
-
-    res.render('layout.ejs', {
-        pageName : 'profile',
-        stretches : undefined,
-        content : body
-    })
-})
-
-
-const statsPath = path.join(__dirname, 'data', 'stats.json');
-
-app.post('/log/stretch',auth,noCache, (req, res) => {
     try {
-        const progress = JSON.parse(fs.readFileSync(statsPath));
-        progress.stretchSessions = (progress.stretchSessions || 0) + 1;
-        fs.writeFileSync(statsPath, JSON.stringify(progress, null, 2));
+        const user = await User.findById(req.session.userId);
+        const activity = await Activity.findOne({ username: req.session.userId });
+
+        const body = await ejs.renderFile(path.join(__dirname,'views', 'profile.ejs'), {
+            username : user?.username || 'User',
+            days : 1, // will take care if this essentially need to keep track of the sign up date its hidden in teh ejs for now
+            numberOfStretches : activity?.stretchSessions || 0,
+            numberOfWarmups : activity?.warmupSessions || 0
+        });
+
+        res.render('layout.ejs', {
+            pageName : 'profile',
+            stretches : undefined,
+            content : body
+        });
+    } catch (error) {
+        res.status(500).send("Server error");
+    }
+});
+
+
+// Replace these routes
+app.post('/log/stretch', auth, noCache, async (req, res) => {
+    try {
+        await Activity.findOneAndUpdate(
+            { username: req.session.userId },
+            { $inc: { stretchSessions: 1 } }
+        );
         res.sendStatus(200);
     } catch (err) {
         console.error("Failed to update stretch count:", err);
@@ -214,11 +203,12 @@ app.post('/log/stretch',auth,noCache, (req, res) => {
     }
 });
 
-app.post('/log/warmup', auth,noCache,(req, res) => {
+app.post('/log/warmup', auth, noCache, async (req, res) => {
     try {
-        const progress = JSON.parse(fs.readFileSync(statsPath));
-        progress.warmupSessions = (progress.warmupSessions || 0) + 1;
-        fs.writeFileSync(statsPath, JSON.stringify(progress, null, 2));
+        await Activity.findOneAndUpdate(
+            { username: req.session.userId },
+            { $inc: { warmupSessions: 1 } }
+        );
         res.sendStatus(200);
     } catch (err) {
         console.error("Failed to update warm up count:", err);
@@ -368,15 +358,22 @@ app.post('/generate', auth,noCache,async (req, res) => {
 });
 
 
-app.post('/reset',auth,noCache, (req, res)=>{
-    const statsOBJ = fs.readFileSync((path.join(__dirname,'data','stats.json')));
-    const stats = JSON.parse(statsOBJ);
-    stats.stretchSessions =0;
-    stats.warmupSessions =0;
-    fs.writeFileSync((path.join(__dirname,'data','stats.json')),JSON.stringify(stats,null, 2));
-    return res.redirect('/profile');
-
-
+app.post('/reset', auth, noCache, async (req, res) => {
+    try {
+        await Activity.findOneAndUpdate(
+            { username: req.session.userId },
+            {
+                $set: {
+                    stretchSessions: 0,
+                    warmupSessions: 0
+                }
+            }
+        );
+        return res.redirect('/profile');
+    } catch (error) {
+        console.error("Reset error:", error);
+        return res.status(500).send("Error resetting statistics");
+    }
 });
 
 

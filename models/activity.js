@@ -36,13 +36,13 @@ const Schema = mongoose.Schema;
         type : Date,
         required:false
     },
-    stretchNumb: {
-        type : Number,
-        required: false,
+    stretchSessions: {
+        type: Number,
+        default: 0
     },
-    warmNumb: {
-        type : Number,
-        required: true,
+    warmupSessions: {
+        type: Number,
+        default: 0
     }
 
 }, {timestamps: true});
