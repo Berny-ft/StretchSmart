@@ -16,7 +16,7 @@ const mongoURI = process.env.MONGOOSE; // placed it in the env file
 
 //middleware to use express session to track the user
 app.use(session({
-    secret:"a random string",
+    secret:process.env.SESSIONSECRET,
     resave: false,
     saveUninitialized:false,
 }))
@@ -153,7 +153,12 @@ app.post('/signup', async (req, res) => {
         });
 
 
-        await activity.save();
+        try {
+            await activity.save();
+        } catch (e) {
+            console.error("Database save error:", e);
+            return res.status(500).send("Failed to save session");
+        }
 
         res.redirect('/');
     }).catch((err) => {
@@ -439,8 +444,9 @@ app.get("/sports/run", auth, noCache, async (req, res) => {
         let cappedProgress = 0;
 
         if (targetPaceValue > 0 && lastPace > 0) {
-            progressPercentage = (targetPaceValue / lastPace) * 100; // How close current is to target
-            cappedProgress = Math.min(progressPercentage, 100); // Cap for progress bar
+            progressPercentage = (targetPaceValue / lastPace) * 100;
+        } else {
+            progressPercentage = 0; // Handle invalid/zero cases
         }
 
 
@@ -486,7 +492,12 @@ app.post('/sports/run/edit', auth, noCache, async (req, res) => {
         activity.endDate = endDate;
     }
 
-    await activity.save();
+    try {
+        await activity.save();
+    } catch (e) {
+        console.error("Database save error:", e);
+        return res.status(500).send("Failed to save session");
+    }
     return res.redirect('/sports/run');
 });
 
@@ -500,7 +511,13 @@ app.post('/sports/run/add',auth, noCache, async (req,res)=>{
         date : new Date(sessionDate), // the cpy constructor
     }
     activity.pace.push(entry);
-    await activity.save();
+
+    try {
+        await activity.save();
+    } catch (e) {
+        console.error("Database save error:", e);
+        return res.status(500).send("Failed to save session");
+    }
     return res.redirect('/sports/run')
 
 })
@@ -515,7 +532,12 @@ app.post('/sports/run/delete', auth, noCache, async (req, res) => {
         activity.targetPace = 0;
         activity.endDate = new Date(2000, 0, 0);
 
-        await activity.save();
+        try {
+            await activity.save();
+        } catch (e) {
+            console.error("Database save error:", e);
+            return res.status(500).send("Failed to save session");
+        }
         res.redirect('/sports/run');
     } catch (error) {
         console.error("Delete error:", error);
