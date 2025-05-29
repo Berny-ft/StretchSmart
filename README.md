@@ -1,4 +1,4 @@
-# StretchSmart
+# StretchSmart (Not up to date)
 
 StretchSmart is a personalized stretch and warm-up recommendation app for runners.  
 It uses AI (Gemini) to generate custom routines based on your time, effort, and recovery needs.
